@@ -18,16 +18,12 @@
       height: 200px;
       background-color: #3498db;
       border-radius: 50%;
-      /* transition: transform 0.5s ease-in-out; */
     }
 
     .number {
       position: relative;
       font-size: 20px;
       color: black;
-      transform: translate(-50%, -50%);
-      width: 10px;
-      height: 20px;
     }
   </style>
   <title>Rotating Disk with Scattered Numbers</title>
@@ -42,9 +38,19 @@
   </div>
 
   <script>
+    const number_width = 10;
+    const number_height = 20;
+
     const disk = document.getElementById('disk');
     const numbers = document.querySelectorAll('.number');
     let rotationDegree = 0;
+
+    function init() {
+      numbers.forEach((number) => {
+        number.style.width = number_width;
+        number.style.height = number_height;
+      });
+    }
 
     function updateNumbersPosition() {
       numbers.forEach((number) => {
@@ -56,8 +62,8 @@
         const x = Math.sin(rotatedDegree * (Math.PI / 180)) * radius;
         const y = Math.cos(rotatedDegree * (Math.PI / 180)) * radius;
 
-        number.style.left = `calc(${50 + x}% - ${index * 10}px - 5px)`;
-        number.style.top = `calc(${50 - y}% - 10px)`;
+        number.style.left = `calc(${50 + x}% - ${index * number_width}px - ${number_width / 2}px)`;
+        number.style.top = `calc(${50 - y}% - ${number_height / 2}px)`;
         console.log(`${number.style.left}, ${number.style.top}`);
       });
     }
