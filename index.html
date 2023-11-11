@@ -14,13 +14,12 @@
 
     #disk {
       position: relative;
-      width: 200px;
-      height: 200px;
       background-color: #3498db;
       border-radius: 50%;
     }
 
     .number {
+      display: inline-block;
       position: relative;
       font-size: 20px;
       color: black;
@@ -30,41 +29,60 @@
 </head>
 <body>
   <div id="disk">
-    <span class="number" data-degree="0" data-index="0">1</span><!--
-    --><span class="number" data-degree="45" data-index="1">2</span><!--
-    --><span class="number" data-degree="90" data-index="2">3</span><!--
-    --><span class="number" data-degree="135" data-index="3">4</span>
+    <span class="number" data-degree="0" data-index="0" data-track="0">1</span><!--
+    --><span class="number" data-degree="45" data-index="1" data-track="0">2</span><!--
+    --><span class="number" data-degree="90" data-index="2" data-track="0">3</span><!--
+    --><span class="number" data-degree="135" data-index="3" data-track="0">4</span><!--
+  --><span class="number" data-degree="0" data-index="0" data-track="1">1</span><!--
+    --><span class="number" data-degree="45" data-index="1" data-track="1">2</span><!--
+    --><span class="number" data-degree="90" data-index="2" data-track="1">3</span><!--
+    --><span class="number" data-degree="135" data-index="3" data-track="1">4</span><!--
+  --><span class="number" data-degree="0" data-index="0" data-track="2">1</span><!--
+    --><span class="number" data-degree="45" data-index="1" data-track="2">2</span><!--
+    --><span class="number" data-degree="90" data-index="2" data-track="2">3</span><!--
+    --><span class="number" data-degree="135" data-index="3" data-track="2">4</span>
     <!-- Add more numbers as needed -->
   </div>
 
   <script>
+    // Number of tracks. Must be at least 2
+    const tracks = 3;
+    const disk_diameter = 400;
+    // Size of each number <span>
     const number_width = 10;
     const number_height = 20;
+    // The ratio of radius of the outer track and diameter of the disk
+    const max_radius_ratio = 0.4;
+    const min_radius_ratio = 0.1;
 
     const disk = document.getElementById('disk');
     const numbers = document.querySelectorAll('.number');
     let rotationDegree = 0;
 
     function init() {
+      disk.style.width = `${disk_diameter}px`;
+      disk.style.height = `${disk_diameter}px`;
       numbers.forEach((number) => {
-        number.style.width = number_width;
-        number.style.height = number_height;
+        number.style.width = `${number_width}px`;
+        number.style.height = `${number_height}px`;
       });
     }
+
+    init();
 
     function updateNumbersPosition() {
       numbers.forEach((number) => {
         const degree = parseInt(number.dataset.degree);
         const rotatedDegree = degree + rotationDegree;
-        const radius = 40; // Adjust this to control the radius of the circle
+        const track = parseInt(number.dataset.track);
         const index = parseInt(number.dataset.index);
+        const radius_ratio = track / (tracks - 1) * (max_radius_ratio - min_radius_ratio) + min_radius_ratio;
 
-        const x = Math.sin(rotatedDegree * (Math.PI / 180)) * radius;
-        const y = Math.cos(rotatedDegree * (Math.PI / 180)) * radius;
+        const x = Math.sin(rotatedDegree * (Math.PI / 180)) * radius_ratio * 100;
+        const y = Math.cos(rotatedDegree * (Math.PI / 180)) * radius_ratio * 100;
 
         number.style.left = `calc(${50 + x}% - ${index * number_width}px - ${number_width / 2}px)`;
         number.style.top = `calc(${50 - y}% - ${number_height / 2}px)`;
-        console.log(`${number.style.left}, ${number.style.top}`);
       });
     }
 
