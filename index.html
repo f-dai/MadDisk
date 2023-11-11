@@ -29,24 +29,15 @@
 </head>
 <body>
   <div id="disk">
-    <span class="number" data-degree="0" data-track="0">1</span><!--
-    --><span class="number" data-degree="45" data-track="0">2</span><!--
-    --><span class="number" data-degree="90" data-track="0">3</span><!--
-    --><span class="number" data-degree="135" data-track="0">4</span><!--
-  --><span class="number" data-degree="0" data-track="1">1</span><!--
-    --><span class="number" data-degree="45" data-track="1">2</span><!--
-    --><span class="number" data-degree="90" data-track="1">3</span><!--
-    --><span class="number" data-degree="135" data-track="1">4</span><!--
-  --><span class="number" data-degree="0" data-track="2">1</span><!--
-    --><span class="number" data-degree="45" data-track="2">2</span><!--
-    --><span class="number" data-degree="90" data-track="2">3</span><!--
-    --><span class="number" data-degree="135" data-track="2">4</span>
+
     <!-- Add more numbers as needed -->
   </div>
 
   <script>
     // Number of tracks. Must be at least 2
     const tracks = 3;
+    // Number of sectors.
+    const sectors = 8;
     const disk_diameter = 400;
     // Size of each number <span>
     const number_width = 10;
@@ -56,17 +47,31 @@
     const min_radius_ratio = 0.1;
 
     const disk = document.getElementById('disk');
-    const numbers = document.querySelectorAll('.number');
+    let numbers = []; //document.querySelectorAll('.number');
     let rotationDegree = 0;
 
     function init() {
       disk.style.width = `${disk_diameter}px`;
       disk.style.height = `${disk_diameter}px`;
-      numbers.forEach((number, index) => {
-        number.dataset.index = index;
-        number.style.width = `${number_width}px`;
-        number.style.height = `${number_height}px`;
-      });
+      // Global index of the numbers
+      let index = 0;
+      // Generate numbers
+      for (let i = 0; i < tracks; ++i) {
+        for (let j = 0; j < sectors; ++j) {
+          number = document.createElement("span");
+          number.textContent = index;
+          number.dataset.index = (index++);
+          // relative degree within the same track
+          number.dataset.degree = j / sectors * 360;
+          number.className = 'number';
+          number.dataset.track = i;
+          number.dataset.sector = j;
+          number.style.width = `${number_width}px`;
+          number.style.height = `${number_height}px`;
+          numbers.push(number);
+          disk.appendChild(number);
+        }
+      }
     }
 
     init();
@@ -89,7 +94,6 @@
 
     function rotateDisk(degrees) {
       rotationDegree += degrees;
-      //disk.style.transform = `rotate(${rotationDegree}deg)`;
       updateNumbersPosition();
     }
 
