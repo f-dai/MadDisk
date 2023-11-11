@@ -18,6 +18,13 @@
       border-radius: 50%;
     }
 
+    #head {
+      display: inline-block;
+      position: relative;
+      background-color: red;
+      border-radius: 50%;
+    }
+
     .number {
       display: inline-block;
       position: relative;
@@ -28,31 +35,50 @@
   <title>Rotating Disk with Scattered Numbers</title>
 </head>
 <body>
-  <div id="disk">
-
-    <!-- Add more numbers as needed -->
-  </div>
+  <div id="head"></div>
+  <div id="disk"></div>
+  <!-- <canvas id="canvas">
+  </canvas> -->
 
   <script>
     // Number of tracks. Must be at least 2
     const tracks = 3;
     // Number of sectors.
     const sectors = 8;
+    // All sizes are in px
     const disk_diameter = 400;
+    const head_diameter = 20;
+    // Each keydown will move head this distance in px.
+    const head_speed = 4;
     // Size of each number <span>
     const number_width = 10;
     const number_height = 20;
     // The ratio of radius of the outer track and diameter of the disk
     const max_radius_ratio = 0.4;
     const min_radius_ratio = 0.1;
+    // Maximum movement of head: to the inner most track
+    const head_max_left = disk_diameter / 2 * (1 - min_radius_ratio * 2) + head_diameter / 2;
+    const head_min_left = disk_diameter / 2 * (1 - max_radius_ratio * 2) + head_diameter / 2;
 
     const disk = document.getElementById('disk');
+    const head = document.getElementById('head');
+    // const canvas = document.getElementById('canvas');
     let numbers = []; //document.querySelectorAll('.number');
     let rotationDegree = 0;
 
     function init() {
+      // canvas.style.width = `${disk_diameter}px`;
+      // canvas.style.height = `${disk_diameter}px`;
       disk.style.width = `${disk_diameter}px`;
       disk.style.height = `${disk_diameter}px`;
+      head.style.width = `${head_diameter}px`;
+      head.style.height = `${head_diameter}px`;
+      // Make the head just cover the outer sectors
+      head.style.left = `${head_min_left}px`;
+      // head.style.left = `${disk_diameter * (1 - max_radius_ratio * 2) - number_width - head_diameter / 2}px`;
+      head.style.zIndex = 9;
+      // head.style.top = `calc(50% - ${head_diameter / 2}px)`;
+
       // Global index of the numbers
       let index = 0;
       // Generate numbers
@@ -72,6 +98,23 @@
           disk.appendChild(number);
         }
       }
+
+      // let line_start_x = disk_diameter / 2;
+      // let line_start_y = disk_diameter / 2;
+      // for (j = 0; j < sectors; ++j) {
+      //   const ctx = canvas.getContext('2d');
+      //   // set line stroke and line width
+      //   ctx.strokeStyle = 'red';
+      //   ctx.lineWidth = 1;
+
+      //   // draw a red line
+      //   ctx.beginPath();
+      //   ctx.moveTo(line_start_x, line_start_y);
+      //   // Line start from theta / 2, each with theta interval (theta = 360 / sectors)
+      //   let angle = 360 / sectors / 2 + 360 / sectors * j;
+      //   ctx.lineTo(disk_diameter / 2 * Math.cos(angle * (Math.PI / 180)), disk_diameter / 2 * Math.sin(angle * (Math.PI / 180)));
+      //   ctx.stroke();
+      // }
     }
 
     init();
@@ -96,6 +139,19 @@
       rotationDegree += degrees;
       updateNumbersPosition();
     }
+
+    function handleKeyDown(event) {
+      let head_left = parseFloat(document.getElementById('head').style.left);
+      if (event.key === 'ArrowLeft') {
+        if (head_left <= head_min_left) return;
+        head.style.left = head_left - head_speed + 'px';
+      } else if (event.key === 'ArrowRight') {
+        if (head_left >= head_max_left) return;
+        head.style.left = head_left + head_speed + 'px';
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
 
     updateNumbersPosition();
 
