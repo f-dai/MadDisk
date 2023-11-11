@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #disk {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      background-color: #3498db;
+      border-radius: 50%;
+      /* transition: transform 0.5s ease-in-out; */
+    }
+
+    .number {
+      position: relative;
+      font-size: 20px;
+      color: black;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 20px;
+    }
+  </style>
+  <title>Rotating Disk with Scattered Numbers</title>
+</head>
+<body>
+  <div id="disk">
+    <span class="number" data-degree="0" data-index="0">1</span><!--
+    --><span class="number" data-degree="45" data-index="1">2</span><!--
+    --><span class="number" data-degree="90" data-index="2">3</span><!--
+    --><span class="number" data-degree="135" data-index="3">4</span>
+    <!-- Add more numbers as needed -->
+  </div>
+
+  <script>
+    const disk = document.getElementById('disk');
+    const numbers = document.querySelectorAll('.number');
+    let rotationDegree = 0;
+
+    function updateNumbersPosition() {
+      numbers.forEach((number) => {
+        const degree = parseInt(number.dataset.degree);
+        const rotatedDegree = degree + rotationDegree;
+        const radius = 40; // Adjust this to control the radius of the circle
+        const index = parseInt(number.dataset.index);
+
+        const x = Math.sin(rotatedDegree * (Math.PI / 180)) * radius;
+        const y = Math.cos(rotatedDegree * (Math.PI / 180)) * radius;
+
+        number.style.left = `calc(${50 + x}% - ${index * 10}px - 5px)`;
+        number.style.top = `calc(${50 - y}% - 10px)`;
+        console.log(`${number.style.left}, ${number.style.top}`);
+      });
+    }
+
+    function rotateDisk(degrees) {
+      rotationDegree += degrees;
+      //disk.style.transform = `rotate(${rotationDegree}deg)`;
+      updateNumbersPosition();
+    }
+
+    updateNumbersPosition();
+
+    setInterval(() => {
+      rotateDisk(2);
+    }, 40);
+  </script>
+</body>
+</html>
