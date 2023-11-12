@@ -8,6 +8,10 @@ const sectors = 12;
 const total = (tracks-1) * sectors;
 // Number of queries in a level. Does not include duplicates so cannot be larger than `total`.
 const queries = 20;
+// negative = counterclockwise
+const degPerTick = -2;
+// In miliseconds
+const tickLength = 40;
 // All sizes are in px
 const disk_diameter = 600;
 const head_diameter = 30;
@@ -54,6 +58,7 @@ const queueCap = Math.min(Math.max(3, queries - 2), 10);
 let lastq = 0;  // Last tick since we popped a query to user
 const queryInterval = 2000;  // miliseconds between each query
 let curReading = -1;
+let startReadingTick = 0;
 let headCanMove = true;
 
 replayAlg.addEventListener('click', () => {
@@ -95,8 +100,8 @@ function startGame(isAI) {
   console.log(pendingQueue);
   // Start rotating
   intervalID = setInterval(() => {
-    tick(-2);
-  }, 40);
+    tick(degPerTick);
+  }, tickLength);
   startTime = new Date();
   started = true;
   replay.style.visibility = 'hidden';
@@ -117,6 +122,7 @@ function stopGame(success) {
   started = false;
   aiPlaying = false;
   curReading = -1;
+  startReadingTick = 0;
   lastq = 0;
   pendingQueue = [];
   curq = [];
@@ -327,27 +333,33 @@ function tick(degrees) {
     curTrack = tracks - 2 - curTrack;
     // If there are reading numbers in queue and current number is not the reading number, reading complete!
     if (curReading !== -1 && curReading !== curNumbers[curTrack]) {
-      // Remove first occurance from curq
-      let i = 0;
-      for (; i < curq.length; ++i) {
-        if (curq[i].idx == curReading) break;
-      }
-      if (i < curq.length) curq.splice(i, 1);
-      // If no more queries to pop, user wins
-      if (curq.length === 0 && pendingQueue.length === 0) {
-        stopGame(true);
-        return;
-      }
-      curReading = -1;
-      if (aiPlaying) aiNext = AI.get();
       // Re-enable head movement
       headCanMove = true;
+      let readTime = new Date() - startReadingTick;
+      startReadingTick = 0;
+      if (readTime >= 360 / sectors / (degPerTick / tickLength)) {
+        // Read the whole sector success
+        // Remove first occurance from curq
+        let i = 0;
+        for (; i < curq.length; ++i) {
+          if (curq[i].idx == curReading) break;
+        }
+        if (i < curq.length) curq.splice(i, 1);
+        // If no more queries to pop, user wins
+        if (curq.length === 0 && pendingQueue.length === 0) {
+          stopGame(true);
+          return;
+        }
+        curReading = -1;
+        if (aiPlaying) aiNext = AI.get();
+      }
     }
     // If current number is in the queue, begin reading, and disable head movement
     for (let item of curq) {
       if (curNumbers[curTrack] === item.idx) {
         curReading = item.idx;
         headCanMove = false;
+        startReadingTick = new Date();
         break;
       }
     }
