@@ -58,7 +58,7 @@ const queueCap = Math.min(Math.max(3, queries - 2), 10);
 let lastq = 0;  // Last tick since we popped a query to user
 const queryInterval = 2000;  // miliseconds between each query
 let curReading = -1;
-let startReadingTick = 0;
+let startReadingDeg = null;
 let headCanMove = true;
 
 replayAlg.addEventListener('click', () => {
@@ -122,7 +122,7 @@ function stopGame(success) {
   started = false;
   aiPlaying = false;
   curReading = -1;
-  startReadingTick = 0;
+  startReadingDeg = null;
   lastq = 0;
   pendingQueue = [];
   curq = [];
@@ -335,10 +335,11 @@ function tick(degrees) {
     if (curReading !== -1 && curReading !== curNumbers[curTrack]) {
       // Re-enable head movement
       headCanMove = true;
-      let readTime = new Date() - startReadingTick;
-      startReadingTick = 0;
-      if (readTime >= 360 / sectors / (degPerTick / tickLength)) {
-        // Read the whole sector success
+      // If startReadingDeg is null, reading not start yet, always fail
+      let readDeg = Math.abs(rotationDegree - (startReadingDeg === null ? rotationDegree : startReadingDeg));
+      startReadingDeg = null;
+      if (readDeg >= 360 / sectors) {
+        // Read the whole sector success (deg is safer than time for possible lagging)
         // Remove first occurance from curq
         let i = 0;
         for (; i < curq.length; ++i) {
@@ -359,7 +360,7 @@ function tick(degrees) {
       if (curNumbers[curTrack] === item.idx) {
         curReading = item.idx;
         headCanMove = false;
-        startReadingTick = new Date();
+        if (startReadingDeg === null) startReadingDeg = rotationDegree;
         break;
       }
     }
