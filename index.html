@@ -105,6 +105,7 @@
     <div id="score"><span class="text">Score:</span><span id="curscore" class="text">0</span></div>
   </div>
   <div class="line-break"></div>
+  <div id="queue"></div>
   <div id="disk">
     <div id="head"></div>
   </div>
@@ -250,13 +251,25 @@
 
     init();
 
+    // Cur numbers that are under header sectors (all tracks from inner to outer, not necessary the one being read)
+    let curNumbers = [];
+    const curAngleMin = 270 - 180 / sectors;
+    const curAngleMax = 270 + 180 / sectors;
+
     function updateNumbersPosition() {
-      numbers.forEach((number) => {
+      curNumbers = [];
+      numbers.forEach((number, i) => {
+        // The angles rotated clockwise relative to the 12 o'clock direction, in deg
         const degree = parseInt(number.dataset.degree);
         const rotatedDegree = degree + rotationDegree;
         const track = parseInt(number.dataset.track);
         const index = parseInt(number.dataset.index);
         const radius_ratio = track / (tracks - 1) * (max_radius_ratio - min_radius_ratio) + min_radius_ratio;
+
+        const remainder = ((rotatedDegree % 360) + 360) % 360; // Can be negative so be cautious!
+        if (curAngleMin <= remainder && curAngleMax >= remainder) {
+          curNumbers.push(i);
+        }
 
         const x = Math.sin(rotatedDegree * (Math.PI / 180)) * radius_ratio * 100;
         const y = Math.cos(rotatedDegree * (Math.PI / 180)) * radius_ratio * 100;
@@ -280,6 +293,11 @@
       let head_left = parseFloat(document.getElementById('head').style.left);
       if (Math.abs(head_left - head_target) > 3) {
         head.style.left = head_left + (head_target > head_left ? 1 : -1) * head_speed + 'px';
+      } else {
+        // Stable - can read
+        let curTrack = Math.round((head_left - head_min_left) / (disk_diameter / tracks / 2));
+        // curNumbers are from inner to outer so take negative
+        curTrack = tracks - 2 - curTrack;
       }
       // Update time
       let seconds = Math.floor((new Date() - startTime) / 1000);
