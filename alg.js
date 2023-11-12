@@ -1,5 +1,6 @@
-class SSTF {
-  constructor() {
+export class SSTF {
+  constructor(n) {
+    this.n = n;  // Unused, just to unify all classes' parameters
     this.requests = [];
     this.pointer = 0; 
   }
@@ -32,9 +33,10 @@ class SSTF {
 }
 
 
-class SCAN {
-  constructor() {
-    this.requests = new Array(32).fill(0); 
+export class SCAN {
+  constructor(n) {
+    this.n = n;
+    this.requests = new Array(n).fill(0); 
     this.direction = 1; 
     this.pointer = 0;
   }
@@ -60,7 +62,7 @@ class SCAN {
 
     while(true) {
       if(this.direction === 1) {
-        for(; this.pointer < 32; this.pointer++) {
+        for(; this.pointer < this.n; this.pointer++) {
           if(this.requests[this.pointer] === 1) {
             this.requests[this.pointer] = 0;
             return this.pointer;
