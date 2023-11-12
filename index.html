@@ -37,10 +37,8 @@
       width: 100%;
     }
 
-    #header::before {
-      content: "Score: 0";
+    #title {
       margin-right: auto;
-      visibility: hidden;
     }
 
     .text {
@@ -49,7 +47,7 @@
       color: white;
     }
 
-    #title {
+    #time {
       display: flex;
     }
 
@@ -59,7 +57,7 @@
     }
 
     /* whitespace */
-    #curscore:before {
+    #curscore:before, #curtime:before {
       content: "\00a0 ";
     }
 
@@ -68,6 +66,7 @@
       background-color: #3498db;
       border-radius: 50%;
       margin-top: 60px;
+      margin-bottom: 60px;
     }
 
     #head {
@@ -101,13 +100,16 @@
 <body>
 <div id="container">
   <div id="header">
-  <div id="title"><span class="text">MadDisk</span></div>
-  <div id="score"><span class="text">Score:</span><span id="curscore" class="text">0</span></div>
+    <div id="title"><span class="text">MadDisk</span></div>
+    <div id="time"><span class="text">Time:</span><span id="curtime" class="text">00:00</span></div>
+    <div id="score"><span class="text">Score:</span><span id="curscore" class="text">0</span></div>
   </div>
   <div class="line-break"></div>
   <div id="disk">
     <div id="head"></div>
   </div>
+  <div class="line-break"></div>
+  <div id="status"><span class="text" id="status-text">&gt; Boot</span></div>
 </div>
 
   <script>
@@ -133,17 +135,46 @@
     // Background colors of inner most and outer most disk.
     const innerRGB = [255, 255, 255];
     const outerRGB = [32, 48, 64];
+    
+    let started = false;
 
     const disk = document.getElementById('disk');
-    const head = document.getElementById('head');
+    let head = document.getElementById('head');
+    const start = document.getElementById('status');
 
     let numbers = [];
     let lines = [];
     let rotationDegree = 0;
+    let intervalID = 0;
+
+    start.addEventListener('click', () => {
+      if (started) {
+        // End the game
+        document.getElementById('status-text').textContent = '> Boot';
+        // Stop rotating
+        clearInterval(intervalID);
+        // Reset score
+        document.getElementById('curscore').textContent = '0';
+        document.getElementById('curtime').textContent = '00:00';
+      } else {
+        // Start the game
+        document.getElementById('status-text').textContent = '> Shutdown';
+        // Start rotating
+        intervalID = setInterval(() => {
+          rotateDisk(-2);
+        }, 40);
+      }
+      started = !started;
+    })
 
     function init() {
-      // canvas.style.width = `${disk_diameter}px`;
-      // canvas.style.height = `${disk_diameter}px`;
+      // Reset
+      numbers = [];
+      lines = [];
+      rotationDegree = 0;
+      disk.innerHTML = '<div id="head"></div>';
+      head = document.getElementById('head');
+
       disk.style.width = `${disk_diameter}px`;
       disk.style.height = `${disk_diameter}px`;
       head.style.width = `${head_diameter}px`;
@@ -249,6 +280,7 @@
     }
 
     function handleKeyDown(event) {
+      if (!started) return;
       if (event.key === 'ArrowLeft') {
         if (head_target <= head_min_left) return;
         head_target -= disk_diameter / tracks / 2;
@@ -263,10 +295,6 @@
     document.addEventListener('keydown', handleKeyDown);
 
     updateNumbersPosition();
-
-    setInterval(() => {
-      rotateDisk(-2);
-    }, 40);
   </script>
 </body>
 </html>
