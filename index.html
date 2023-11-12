@@ -82,6 +82,7 @@
       margin: 3px;
       width: 100%;
       height: 40px;
+      padding-left: 10px;
     }
 
     #disk {
@@ -206,7 +207,6 @@
       document.getElementById('status-text').textContent = '> Shutdown';
       // Generate queries
       pendingQueue = generateQueries(queries);
-      console.log(pendingQueue);
       // Start rotating
       intervalID = setInterval(() => {
         tick(-2);
@@ -372,6 +372,8 @@
         let query = document.createElement('span');
         query.className = 'queue-box text';
         query.textContent = numbers[idx].textContent;
+        if (curReading === idx)
+          query.textContent += ' ⌛️';
         if (timeInQue > 10000) {
           query.style.backgroundColor = 'red';
         } else if (timeInQue > 5000) {
@@ -426,10 +428,7 @@
           for (; i < curq.length; ++i) {
             if (curq[i].idx == curReading) break;
           }
-          console.log(curq);
           if (i < curq.length) curq.splice(i, 1);
-          console.log('read idx=', curReading);
-          console.log(curq);
           // If no more queries to pop, user wins
           if (curq.length === 0 && pendingQueue.length === 0) {
             stopGame(true);
