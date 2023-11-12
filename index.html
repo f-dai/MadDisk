@@ -25,6 +25,11 @@
       border-radius: 50%;
     }
 
+    .line {
+      display: inline-block;
+      position: absolute;
+    }
+
     .number {
       display: inline-block;
       position: relative;
@@ -37,8 +42,6 @@
 <body>
   <div id="head"></div>
   <div id="disk"></div>
-  <!-- <canvas id="canvas">
-  </canvas> -->
 
   <script>
     // Number of tracks. Must be at least 2
@@ -62,8 +65,9 @@
 
     const disk = document.getElementById('disk');
     const head = document.getElementById('head');
-    // const canvas = document.getElementById('canvas');
-    let numbers = []; //document.querySelectorAll('.number');
+
+    let numbers = [];
+    let lines = [];
     let rotationDegree = 0;
 
     function init() {
@@ -84,7 +88,7 @@
       // Generate numbers
       for (let i = 0; i < tracks; ++i) {
         for (let j = 0; j < sectors; ++j) {
-          number = document.createElement("span");
+          let number = document.createElement("span");
           number.textContent = index;
           number.dataset.index = (index++);
           // relative degree within the same track
@@ -99,22 +103,22 @@
         }
       }
 
-      // let line_start_x = disk_diameter / 2;
-      // let line_start_y = disk_diameter / 2;
-      // for (j = 0; j < sectors; ++j) {
-      //   const ctx = canvas.getContext('2d');
-      //   // set line stroke and line width
-      //   ctx.strokeStyle = 'red';
-      //   ctx.lineWidth = 1;
-
-      //   // draw a red line
-      //   ctx.beginPath();
-      //   ctx.moveTo(line_start_x, line_start_y);
-      //   // Line start from theta / 2, each with theta interval (theta = 360 / sectors)
-      //   let angle = 360 / sectors / 2 + 360 / sectors * j;
-      //   ctx.lineTo(disk_diameter / 2 * Math.cos(angle * (Math.PI / 180)), disk_diameter / 2 * Math.sin(angle * (Math.PI / 180)));
-      //   ctx.stroke();
-      // }
+      // Draw lines to split sectors
+      for (let j = 0; j < sectors; ++j) {
+        let line = document.createElement("span");
+        line.style.borderBottom = '1px solid deeppink';
+        const degree = 360 / sectors;
+        line.style.left = `50%`;
+        line.style.top = `50%`;
+        line.style.width = '50%';
+        line.style.height = '2px';
+        line.dataset.degree = -90 + degree / 2 + j * degree;
+        line.style.transform = `rotateZ(${line.dataset.degree}deg)`;
+        line.style.transformOrigin = `left`;
+        line.className = 'line';
+        disk.appendChild(line);
+        lines.push(line);
+      }
     }
 
     init();
@@ -138,6 +142,10 @@
     function rotateDisk(degrees) {
       rotationDegree += degrees;
       updateNumbersPosition();
+      lines.forEach((line) => {
+        line.dataset.degree = parseFloat(line.dataset.degree) + degrees;
+        line.style.transform = `rotateZ(${line.dataset.degree}deg)`;
+      });
     }
 
     function handleKeyDown(event) {
