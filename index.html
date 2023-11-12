@@ -8,9 +8,6 @@
       font-family: 'VT323';
       src: url('assets/VT323-Regular.woff2') format('woff2'),
         url('assets/VT323-Regular.woff') format('woff');
-      /* font-weight: normal;
-      font-style: normal;
-      font-display: swap; */
     }
 
     body {
@@ -22,15 +19,60 @@
       background-color: black;
     }
 
+    #container {
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: center;
+    }
+
+    .line-break {
+      width: 100%;
+    }
+
+    #header {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    #header::before {
+      content: "Score: 0";
+      margin-right: auto;
+      visibility: hidden;
+    }
+
+    .text {
+      font-family: 'VT323';
+      font-size: 30px;
+      color: white;
+    }
+
+    #title {
+      display: flex;
+    }
+
+    #score {
+      display: flex;
+      margin-left: auto;
+    }
+
+    /* whitespace */
+    #curscore:before {
+      content: "\00a0 ";
+    }
+
     #disk {
       position: relative;
       background-color: #3498db;
       border-radius: 50%;
+      margin-top: 60px;
     }
 
     #head {
       display: inline-block;
-      position: relative;
+      position: absolute;
       background-color: red;
       border-radius: 50%;
     }
@@ -57,8 +99,16 @@
   <title>MadDisk</title>
 </head>
 <body>
-  <div id="head"></div>
-  <div id="disk"></div>
+<div id="container">
+  <div id="header">
+  <div id="title"><span class="text">MadDisk</span></div>
+  <div id="score"><span class="text">Score:</span><span id="curscore" class="text">0</span></div>
+  </div>
+  <div class="line-break"></div>
+  <div id="disk">
+    <div id="head"></div>
+  </div>
+</div>
 
   <script>
     // Number of actual tracks plus 1 (we will leave the inner most circle empty). Must be at least 3
@@ -66,7 +116,7 @@
     // Number of sectors.
     const sectors = 12;
     // All sizes are in px
-    const disk_diameter = 800;
+    const disk_diameter = 600;
     const head_diameter = 30;
     // Each keydown will move head this distance in px.
     const head_speed = 6;
@@ -77,8 +127,8 @@
     const max_radius_ratio = (1 - 0.5 / tracks) / 2;
     const min_radius_ratio = 0.5 / tracks / 2;
     // Maximum movement of head: to the inner most track; innermost circle is empty
-    const head_max_left = disk_diameter / 2 * (1 - min_radius_ratio * 6) + head_diameter / 2;
-    const head_min_left = disk_diameter / 2 * (1 - max_radius_ratio * 2) + head_diameter / 2;
+    const head_max_left = disk_diameter / 2 * (1 - min_radius_ratio * 6) - head_diameter / 4;
+    const head_min_left = disk_diameter / 2 * (1 - max_radius_ratio * 2) - head_diameter / 4;
     let head_target = head_min_left;
     // Background colors of inner most and outer most disk.
     const innerRGB = [255, 255, 255];
@@ -103,6 +153,7 @@
       // head.style.left = `${disk_diameter * (1 - max_radius_ratio * 2) - number_width - head_diameter / 2}px`;
       head.style.zIndex = 9;
       // head.style.top = `calc(50% - ${head_diameter / 2}px)`;
+      head.style.top = '50%';
 
       // Draw circles to split tracks from outer to inner (so inners will be at the top)
       for (let i = tracks - 2; i >= 0; --i) {
@@ -131,7 +182,8 @@
       for (let i = 1; i < tracks; ++i) {
         for (let j = 0; j < sectors; ++j) {
           let number = document.createElement("span");
-          number.textContent = index;
+          // outer is larger
+          number.textContent = (tracks - 1) * sectors - 1 - index;
           number.dataset.index = (index++);
           // relative degree within the same track
           number.dataset.degree = j / sectors * 360;
@@ -213,7 +265,7 @@
     updateNumbersPosition();
 
     setInterval(() => {
-      rotateDisk(2);
+      rotateDisk(-2);
     }, 40);
   </script>
 </body>
