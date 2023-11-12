@@ -34,6 +34,13 @@ const outerRGB = [32, 48, 64];
 const alg = ['[SSTF]', '[SCAN]'];
 const algClass = [SSTF, SCAN];
 
+// 1.5 laps
+const red_threshold = 360 / (Math.abs(degPerTick) / tickLength) * 1.5;
+const yellow_threshold = 360 / (Math.abs(degPerTick) / tickLength) * 1.1;
+const red_pts = 5;
+const yellow_pts = 50;
+const green_pts = 100;
+
 let started = false;
 let startTime = 0;
 let aiPlaying = false;
@@ -97,7 +104,8 @@ function startGame(isAI) {
     pendingQueue = generateQueries(queries);
     lastQueue = pendingQueue.slice();
   }
-  console.log(pendingQueue);
+  // Output the puzzle for debugging
+  console.log(pendingQueue.slice());
   // Start rotating
   intervalID = setInterval(() => {
     tick(degPerTick);
@@ -113,7 +121,7 @@ function stopGame(success) {
   // Stop rotating
   clearInterval(intervalID);
   // Show results
-  alert(`${aiPlaying ? 'AI' : 'You'} ${success ? 'won' : 'lost'}! Score: xxx, time: yyy`);
+  alert(`${aiPlaying ? 'AI' : 'You'} ${success ? 'won' : 'lost'}! Score: ${parseInt(document.getElementById('curscore').textContent)}, time: ${document.getElementById('curtime').textContent}`);
   // Clear queue
   queue.innerHTML = '';
   // Reset score
@@ -265,9 +273,9 @@ function renderQueue() {
     query.textContent = numbers[idx].textContent;
     if (curReading === idx)
       query.textContent += ' ⌛️';
-    if (timeInQue > 10000) {
+    if (timeInQue > red_threshold) {
       query.style.backgroundColor = 'red';
-    } else if (timeInQue > 5000) {
+    } else if (timeInQue > yellow_threshold) {
       query.style.backgroundColor = 'orange';
     } else {
       query.style.backgroundColor = 'green';
@@ -345,7 +353,18 @@ function tick(degrees) {
         for (; i < curq.length; ++i) {
           if (curq[i].idx == curReading) break;
         }
-        if (i < curq.length) curq.splice(i, 1);
+        
+        if (i < curq.length) {
+            let score = parseInt(document.getElementById('curscore').textContent);
+            if (new Date() - curq[i].time > red_threshold)
+                score += red_pts;
+            else if (new Date() - curq[i].time > yellow_threshold)
+                score += yellow_pts;
+            else
+                score += green_pts;
+            document.getElementById('curscore').textContent = score;
+            curq.splice(i, 1);
+        }
         // If no more queries to pop, user wins
         if (curq.length === 0 && pendingQueue.length === 0) {
           stopGame(true);
