@@ -375,7 +375,7 @@
         if (timeInQue > 10000) {
           query.style.backgroundColor = 'red';
         } else if (timeInQue > 5000) {
-          query.style.backgroundColor = 'yellow';
+          query.style.backgroundColor = 'orange';
         } else {
           query.style.backgroundColor = 'green';
         }
@@ -391,15 +391,15 @@
       let minutes = Math.floor(seconds / 60);
       seconds %= 60;
       document.getElementById('curtime').textContent = `${(minutes < 10 ? "0" : "") + minutes}:${(seconds < 10 ? "0" : "") + seconds}`;
-      // Check if we need to pop a query to user
-      if (ticks - lastq >= queryInterval && pendingQueue.length) {
+      // Check if we need to pop a query to user: game just started or last query is too old
+      if (((curq.length === 0 && pendingQueue.length === queries) || ticks - lastq >= queryInterval) && pendingQueue.length) {
         let idx = pendingQueue.splice(0, 1)[0];
         // If queue is full, game over
         if (curq.length + 1 >= queueCap) {
           stopGame(false);
           return;
         }
-        curq.push({idx: idx, time: ticks});
+        curq.push({idx: idx, time: new Date()});
         lastq = ticks;
       }
 
