@@ -7,7 +7,7 @@ const sectors = 12;
 // Total sector numbers.
 const total = (tracks-1) * sectors;
 // Number of queries in a level. Does not include duplicates so cannot be larger than `total`.
-const queries = 15;
+const queries = 20;
 // All sizes are in px
 const disk_diameter = 600;
 const head_diameter = 30;
@@ -86,11 +86,13 @@ function startGame(isAI) {
     // Init ai class
     let id = parseInt(replayAlg.dataset.id) || 0;
     AI = new (algClass[id])(total);
+    AI.init();
   } else {
     // Generate queries for human games
     pendingQueue = generateQueries(queries);
     lastQueue = pendingQueue.slice();
   }
+  console.log(pendingQueue);
   // Start rotating
   intervalID = setInterval(() => {
     tick(-2);
@@ -165,11 +167,6 @@ function init() {
     for (let k = 0; k < 3; ++k) {
       rgb.push(innerRGB[k] + i * (outerRGB[k] - innerRGB[k]) / tracks);
     }
-    // For the size of number
-    const number_offset = 0.05;
-    const min_circle_radius_ratio = min_radius_ratio + 0.05;
-    const max_circle_radius_ratio = max_radius_ratio - 0.05;
-    // let diameter = (min_circle_radius_ratio + 0.1 + i * (max_circle_radius_ratio - min_circle_radius_ratio) / tracks) * 2 * disk_diameter;
     let diameter = (i + 1) / tracks * disk_diameter;
     let circle = document.createElement("span");
     circle.className = 'circle';
@@ -309,7 +306,6 @@ function tick(degrees) {
   // If idle, check the next we want to read
   if (aiPlaying && aiNext === -1) {
     aiNext = AI.get();
-    console.log(aiNext);
   }
 
   // Move head if away from the target
@@ -326,7 +322,6 @@ function tick(degrees) {
       } else if (curTrack < track) {
         handleKeyDown({key: 'ArrowRight', isAI: 1});
       }
-      console.log(aiNext, curTrack, track);
     }
     // curNumbers are from inner to outer so take negative
     curTrack = tracks - 2 - curTrack;
@@ -345,7 +340,6 @@ function tick(degrees) {
       }
       curReading = -1;
       if (aiPlaying) aiNext = AI.get();
-      console.log('read!', aiNext);
       // Re-enable head movement
       headCanMove = true;
     }

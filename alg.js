@@ -5,6 +5,11 @@ export class SSTF {
     this.pointer = 0; 
   }
 
+  init() {
+    this.requests = [];
+    this.pointer = 0;
+  }
+
   add(request) {
     this.requests.push(request);
   }
