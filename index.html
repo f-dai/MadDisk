@@ -30,6 +30,12 @@
       position: absolute;
     }
 
+    .circle {
+      display: inline-block;
+      position: absolute;
+      border-radius: 50%;
+    }
+
     .number {
       display: inline-block;
       position: relative;
@@ -45,23 +51,27 @@
 
   <script>
     // Number of tracks. Must be at least 2
-    const tracks = 3;
+    const tracks = 4;
     // Number of sectors.
-    const sectors = 8;
+    const sectors = 12;
     // All sizes are in px
-    const disk_diameter = 400;
-    const head_diameter = 20;
+    const disk_diameter = 800;
+    const head_diameter = 30;
     // Each keydown will move head this distance in px.
-    const head_speed = 4;
+    const head_speed = 6;
     // Size of each number <span>
     const number_width = 10;
     const number_height = 20;
-    // The ratio of radius of the outer track and diameter of the disk
-    const max_radius_ratio = 0.4;
-    const min_radius_ratio = 0.1;
+    // The ratio of radius of the outer track and diameter of the disk, to evenly distribute all numbers
+    const max_radius_ratio = (1 - 0.5 / tracks) / 2;
+    const min_radius_ratio = 0.5 / tracks / 2;
     // Maximum movement of head: to the inner most track
     const head_max_left = disk_diameter / 2 * (1 - min_radius_ratio * 2) + head_diameter / 2;
     const head_min_left = disk_diameter / 2 * (1 - max_radius_ratio * 2) + head_diameter / 2;
+    let head_target = head_min_left;
+    // Background colors of inner most and outer most disk.
+    const innerRGB = [255, 255, 255];
+    const outerRGB = [32, 48, 64];
 
     const disk = document.getElementById('disk');
     const head = document.getElementById('head');
@@ -82,6 +92,27 @@
       // head.style.left = `${disk_diameter * (1 - max_radius_ratio * 2) - number_width - head_diameter / 2}px`;
       head.style.zIndex = 9;
       // head.style.top = `calc(50% - ${head_diameter / 2}px)`;
+
+      // Draw circles to split tracks from outer to inner (so inners will be at the top)
+      for (let i = tracks - 2; i >= 0; --i) {
+        let rgb = [];
+        for (let k = 0; k < 3; ++k) {
+          rgb.push(innerRGB[k] + i * (outerRGB[k] - innerRGB[k]) / tracks);
+        }
+        // For the size of number
+        const number_offset = 0.05;
+        const min_circle_radius_ratio = min_radius_ratio + 0.05;
+        const max_circle_radius_ratio = max_radius_ratio - 0.05;
+        // let diameter = (min_circle_radius_ratio + 0.1 + i * (max_circle_radius_ratio - min_circle_radius_ratio) / tracks) * 2 * disk_diameter;
+        let diameter = (i + 1) / tracks * disk_diameter;
+        let circle = document.createElement("span");
+        circle.className = 'circle';
+        circle.style.width = diameter + 'px';
+        circle.style.height = diameter + 'px';
+        circle.style.left = circle.style.top = `calc(50% - ${diameter / 2}px)`;
+        circle.style.backgroundColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+        disk.appendChild(circle);
+      }
 
       // Global index of the numbers
       let index = 0;
@@ -134,8 +165,9 @@
         const x = Math.sin(rotatedDegree * (Math.PI / 180)) * radius_ratio * 100;
         const y = Math.cos(rotatedDegree * (Math.PI / 180)) * radius_ratio * 100;
 
-        number.style.left = `calc(${50 + x}% - ${index * number_width}px - ${number_width / 2}px)`;
-        number.style.top = `calc(${50 - y}% - ${number_height / 2}px)`;
+        // If too many numbers, add back the height of num_height to compensate
+        number.style.left = `calc(${50 + x}% - ${(index * number_width) % disk_diameter}px - ${number_width / 2}px)`;
+        number.style.top = `calc(${50 - y}% - ${number_height / 2 + Math.floor(index * number_width / disk_diameter) * number_height}px)`;
       });
     }
 
@@ -146,16 +178,22 @@
         line.dataset.degree = parseFloat(line.dataset.degree) + degrees;
         line.style.transform = `rotateZ(${line.dataset.degree}deg)`;
       });
+      // Move head if away from the target
+      let head_left = parseFloat(document.getElementById('head').style.left);
+      if (Math.abs(head_left - head_target) > 3) {
+        head.style.left = head_left + (head_target > head_left ? 1 : -1) * head_speed + 'px';
+      }
     }
 
     function handleKeyDown(event) {
-      let head_left = parseFloat(document.getElementById('head').style.left);
       if (event.key === 'ArrowLeft') {
-        if (head_left <= head_min_left) return;
-        head.style.left = head_left - head_speed + 'px';
+        if (head_target <= head_min_left) return;
+        head_target -= disk_diameter / tracks / 2;
+        // head.style.left = head_left - head_speed + 'px';
       } else if (event.key === 'ArrowRight') {
-        if (head_left >= head_max_left) return;
-        head.style.left = head_left + head_speed + 'px';
+        if (head_target >= head_max_left) return;
+        head_target += disk_diameter / tracks / 2;
+        // head.style.left = head_left + head_speed + 'px';
       }
     }
 
