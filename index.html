@@ -137,6 +137,7 @@
     const outerRGB = [32, 48, 64];
     
     let started = false;
+    let startTime = 0;
 
     const disk = document.getElementById('disk');
     let head = document.getElementById('head');
@@ -161,8 +162,9 @@
         document.getElementById('status-text').textContent = '> Shutdown';
         // Start rotating
         intervalID = setInterval(() => {
-          rotateDisk(-2);
+          tick(-2);
         }, 40);
+        startTime = new Date();
       }
       started = !started;
     })
@@ -265,7 +267,9 @@
       });
     }
 
-    function rotateDisk(degrees) {
+    // Things to do on each tick
+    function tick(degrees) {
+      // rotate the disk
       rotationDegree += degrees;
       updateNumbersPosition();
       lines.forEach((line) => {
@@ -277,6 +281,11 @@
       if (Math.abs(head_left - head_target) > 3) {
         head.style.left = head_left + (head_target > head_left ? 1 : -1) * head_speed + 'px';
       }
+      // Update time
+      let seconds = Math.floor((new Date() - startTime) / 1000);
+      let minutes = Math.floor(seconds / 60);
+      seconds %= 60;
+      document.getElementById('curtime').textContent = `${(minutes < 10 ? "0" : "") + minutes}:${(seconds < 10 ? "0" : "") + seconds}`;
     }
 
     function handleKeyDown(event) {
