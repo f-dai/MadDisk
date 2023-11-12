@@ -91,13 +91,15 @@ document.getElementById('replay-text').addEventListener('click', () => {
 function startGame(isAI) {
   // Start the game
   document.getElementById('status-text').textContent = '> Shutdown';
+  // Reset head position
+  head.style.left = head_min_left;
   if (isAI) {
     // Replay, reuse last game
     pendingQueue = lastQueue.slice();  // copy
     aiPlaying = true;
     // Init ai class
     let id = parseInt(replayAlg.dataset.id) || 0;
-    AI = new (algClass[id])(total);
+    AI = new (algClass[id])(total, sectors);
     AI.init();
   } else {
     // Generate queries for human games
@@ -321,6 +323,7 @@ function tick(degrees) {
   if (aiPlaying && aiNext === -1) {
     aiNext = AI.get();
   }
+  console.log('ai next', aiNext);
 
   // Move head if away from the target
   if (Math.abs(head_left - head_target) > 3) {
@@ -370,8 +373,13 @@ function tick(degrees) {
           stopGame(true);
           return;
         }
+        if (aiPlaying) {
+            console.log('ai read done, delete', total - 1 - curReading);
+            AI.delete(total - 1 - curReading);
+            if (aiPlaying) aiNext = AI.get();
+            console.log('ai read done: update:', aiNext);
+        }
         curReading = -1;
-        if (aiPlaying) aiNext = AI.get();
       }
     }
     // If current number is in the queue, begin reading, and disable head movement

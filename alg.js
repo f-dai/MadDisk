@@ -1,8 +1,9 @@
 export class SSTF {
-  constructor(n) {
-    this.n = n;  // Unused, just to unify all classes' parameters
+  constructor(n, sectors) {
+    this.n = n;
+    this.sectors = sectors;
     this.requests = [];
-    this.pointer = 0; 
+    this.pointer = 0;  // cur track id
   }
 
   init() {
@@ -12,9 +13,11 @@ export class SSTF {
 
   add(request) {
     this.requests.push(request);
+    console.log('add', this.requests);
   }
 
   get() {
+    console.log('get', this.requests);
     if(this.requests.length === 0) {
       return -1; 
     }
@@ -23,24 +26,35 @@ export class SSTF {
     let closestIndex = -1;
 
     for(let i = 0; i < this.requests.length; i++) {
-      if(i !== this.pointer) {
-        let distance = Math.abs(this.requests[i] - this.requests[this.pointer]);
-        if(distance < minDistance) {
-          minDistance = distance;
-          closestIndex = i;
-        }
+      let distance = Math.abs(this.requests[i] % this.sectors - this.pointer);
+      if(distance < minDistance) {
+        console.log('dist', i, this.requests[i], distance);
+        minDistance = distance;
+        closestIndex = i;
       }
     }
 
-    this.pointer = closestIndex;
-    return closestIndex;
+    if (closestIndex === -1) return -1;
+    this.pointer = this.requests[closestIndex] % this.sectors;
+    return this.requests[closestIndex];
+  }
+
+  delete(number) {
+    console.log('delete before', this.requests, number);
+    for (let i = 0; i < this.requests.length; ++i)
+      if (this.requests[i] === number) {
+        this.requests.splice(i, 1);
+        console.log('delete', this.requests);
+        return;
+      }
   }
 }
 
 
 export class SCAN {
-  constructor(n) {
+  constructor(n, sectors) {
     this.n = n;
+    this.sectors = sectors;
     this.requests = new Array(n).fill(0); 
     this.direction = 1; 
     this.pointer = 0;
@@ -69,7 +83,6 @@ export class SCAN {
       if(this.direction === 1) {
         for(; this.pointer < this.n; this.pointer++) {
           if(this.requests[this.pointer] === 1) {
-            this.requests[this.pointer] = 0;
             return this.pointer;
           }
         }
@@ -79,13 +92,15 @@ export class SCAN {
       else {
         for(; this.pointer >= 0; this.pointer--) {
           if(this.requests[this.pointer] === 1) {
-            this.requests[this.pointer] = 0;
-            return this.pointer;  
+            return this.pointer;
           }
         }
         this.pointer++;
         this.direction = 1;
       }
     }
+  }
+  delete(number) {
+    this.requests[number] = 0;
   }
 }
