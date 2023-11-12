@@ -4,12 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    @font-face {
+      font-family: 'VT323';
+      src: url('assets/VT323-Regular.woff2') format('woff2'),
+        url('assets/VT323-Regular.woff') format('woff');
+      /* font-weight: normal;
+      font-style: normal;
+      font-display: swap; */
+    }
+
     body {
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
+      background-color: black;
     }
 
     #disk {
@@ -39,18 +49,19 @@
     .number {
       display: inline-block;
       position: relative;
-      font-size: 20px;
+      font-family: 'VT323';
+      font-size: 30px;
       color: black;
     }
   </style>
-  <title>Rotating Disk with Scattered Numbers</title>
+  <title>MadDisk</title>
 </head>
 <body>
   <div id="head"></div>
   <div id="disk"></div>
 
   <script>
-    // Number of tracks. Must be at least 2
+    // Number of actual tracks plus 1 (we will leave the inner most circle empty). Must be at least 3
     const tracks = 4;
     // Number of sectors.
     const sectors = 12;
@@ -65,8 +76,8 @@
     // The ratio of radius of the outer track and diameter of the disk, to evenly distribute all numbers
     const max_radius_ratio = (1 - 0.5 / tracks) / 2;
     const min_radius_ratio = 0.5 / tracks / 2;
-    // Maximum movement of head: to the inner most track
-    const head_max_left = disk_diameter / 2 * (1 - min_radius_ratio * 2) + head_diameter / 2;
+    // Maximum movement of head: to the inner most track; innermost circle is empty
+    const head_max_left = disk_diameter / 2 * (1 - min_radius_ratio * 6) + head_diameter / 2;
     const head_min_left = disk_diameter / 2 * (1 - max_radius_ratio * 2) + head_diameter / 2;
     let head_target = head_min_left;
     // Background colors of inner most and outer most disk.
@@ -117,7 +128,7 @@
       // Global index of the numbers
       let index = 0;
       // Generate numbers
-      for (let i = 0; i < tracks; ++i) {
+      for (let i = 1; i < tracks; ++i) {
         for (let j = 0; j < sectors; ++j) {
           let number = document.createElement("span");
           number.textContent = index;
