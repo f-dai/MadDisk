@@ -62,6 +62,10 @@
       content: "\00a0 ";
     }
 
+    #reply-alg {
+      text-decoration-line: underline;
+    }
+
     #main-content {
       display: flex;
       flex-direction: row;
@@ -110,6 +114,15 @@
       border-radius: 50%;
     }
 
+    /* The fake disk head shown in help */
+    .head {
+      display: inline-block;
+      background-color: red;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+    }
+
     .line {
       display: inline-block;
       position: absolute;
@@ -132,6 +145,22 @@
     #replay {
       visibility: hidden;
     }
+
+    #help-box {
+      display: block;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 10px;
+      width: 1024px;
+      border: 3px solid white;
+      background-color: black;
+      opacity: 70%;
+      /* Above the disk header */
+      z-index: 10;
+      visibility: hidden;
+    }
   </style>
   <title>MadDisk</title>
 </head>
@@ -150,9 +179,37 @@
   </div>
   </div>
   <div class="line-break"></div>
+  <div id="help" style="margin-right: 30px"><span class="text" id="help-text">&gt; Help</span></div>
   <div id="status"><span class="text" id="status-text">&gt; Boot</span></div>
   <div class="line-break"></div>
-  <div id="replay"><span class="text" id="replay-text">&gt; AI Replay w/</span><span class="text" id="replay-alg" data-id="1">[SCAN]</span></div>
+  <div id="replay"><span class="text" id="replay-text">&gt; AI Replay w/</span><span class="text" id="replay-alg" data-id="1">SCAN</span></div>
+</div>
+<div id="help-box" class="text">
+  <h2>Instruction</h2>
+  <p>This game simulates disk operation. You will control the disk head (<span class="head"></span>) by moving to the left or right sector.
+    After the system is booted, there will be a number of I/O requests incoming (shown at left) that you must fulfill.
+    Each request has a number on it and has three different colors: <br>
+    <span class="queue-box" style="background-color: green; width: 97px">42</span>
+    <span class="queue-box" style="background-color: orange; width: 97px">42</span>
+    <span class="queue-box" style="background-color: red; width: 97px">42</span>
+    <span class="queue-box" style="background-color: green; width: 97px">42 ⌛️</span>
+    <span class="queue-box" style="background-color: orange; width: 97px">42 ⌛️</span>
+    <span class="queue-box" style="background-color: red; width: 97px">42 ⌛️</span>
+    <br>
+    When you move the header to the sector with number the same as a request, the disk will start reading that part.
+    The disk header has to scan the whole sector to complete an I/O request, not only a part of it.
+    When it is handling one of the requests in queue, a sandglass icon will be added to that request.
+    All requests come in color green. If a request is left there for too long, it will first turn yellow then turn red.
+    This will affect your score after clearing the requests. When you clear all requests, you win. When there are too many unhandled requests,
+    the disk lantency becomes too high and the angry user will reboot the computer and thus you lose. Can you fulfill all requests and score high?
+  </p>
+  <h2>Controls</h2>
+  <p>
+    Disk header can be moved with left arrow and right arrow. When it is reading a correct sector, it cannot be moved.
+    After the game, click on the algorithm after "AI Replay w/" to choose an algorithm and see if your performance beats the AI!
+    <br>
+    Press any key or click outside to close this help page.
+  </p>
 </div>
 
   <script type="module" src="./main.js"></script>

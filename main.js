@@ -31,7 +31,7 @@ let head_target = head_min_left;
 const innerRGB = [255, 255, 255];
 const outerRGB = [32, 48, 64];
 // AI Algorithms (see alg.js)
-const alg = ['[SSTF]', '[SCAN]'];
+const alg = ['SSTF', 'SCAN'];
 const algClass = [SSTF, SCAN];
 
 // 1.5 laps
@@ -51,6 +51,8 @@ const disk = document.getElementById('disk');
 let head = document.getElementById('head');
 const start = document.getElementById('status');
 const queue = document.getElementById('queue');
+const help = document.getElementById('help');
+const help_box = document.getElementById('help-box');
 const replay = document.getElementById('replay');
 const replayAlg = document.getElementById('replay-alg');
 
@@ -88,6 +90,19 @@ document.getElementById('replay-text').addEventListener('click', () => {
   startGame(true);
 });
 
+// Hide help box by pressing any key
+document.addEventListener('keypress', () => {
+  help_box.style.visibility = 'hidden';
+});
+// Hide help box by clicking outside the box
+document.addEventListener('click', (e) => {
+  if (!help_box.contains(e.target) && !help.contains(e.target))
+    help_box.style.visibility = 'hidden';
+});
+help.addEventListener('click', () => {
+  help_box.style.visibility = 'visible';
+});
+
 function startGame(isAI) {
   // Start the game
   document.getElementById('status-text').textContent = '> Shutdown';
@@ -115,6 +130,7 @@ function startGame(isAI) {
   startTime = new Date();
   started = true;
   replay.style.visibility = 'hidden';
+  help.style.visibility = 'hidden';
 }
 
 function stopGame(success) {
@@ -139,6 +155,7 @@ function stopGame(success) {
   headCanMove = true;
   aiNext = -1;
   replay.style.visibility = 'visible';
+  help.style.visibility = 'visible';
 }
 
 // Generate `count` random numbers from 0 to (tracks-1) * sectors - 1 without duplicate
