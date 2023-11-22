@@ -58,7 +58,7 @@
     }
 
     /* whitespace */
-    #curscore:before, #curtime:before, #replay-alg:before {
+    #curscore:before, #curtime:before, #replay-alg:before, #rest-req-count:after, #till-full-count:after {
       content: "\00a0 ";
     }
 
@@ -175,7 +175,11 @@
   </div>
   <div class="line-break"></div>
   <div id="main-content">
-  <div id="queue"></div>
+  <div id="queue">
+    <span class="text" style="white-space: nowrap; visibility: hidden;"><span id="rest-req-count">--</span>to go</span>
+    <span class="text" style="white-space: nowrap; visibility: hidden;"><span id="till-full-count">--</span>till full</span>
+    <div id="queue-content"></div>
+  </div>
   <div id="disk">
     <div id="head"></div>
   </div>

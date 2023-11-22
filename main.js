@@ -50,11 +50,13 @@ let aiNext = -1;  // Next sector AI wants to read
 const disk = document.getElementById('disk');
 let head = document.getElementById('head');
 const start = document.getElementById('status');
-const queue = document.getElementById('queue');
+const queue = document.getElementById('queue-content');
 const help = document.getElementById('help');
 const help_box = document.getElementById('help-box');
 const replay = document.getElementById('replay');
 const replayAlg = document.getElementById('replay-alg');
+const rest_reqs = document.getElementById('rest-req-count');
+const till_full = document.getElementById('till-full-count');
 
 let numbers = [];
 let lines = [];
@@ -121,6 +123,10 @@ function startGame(isAI) {
     pendingQueue = generateQueries(queries);
     lastQueue = pendingQueue.slice();
   }
+  rest_reqs.parentElement.style.visibility = 'visible';
+  till_full.parentElement.style.visibility = 'visible';
+  rest_reqs.innerText = pendingQueue.length;
+  till_full.innerText = queueCap - curq.length;
   // Output the puzzle for debugging
   console.log(pendingQueue.slice());
   // Start rotating
@@ -142,6 +148,8 @@ function stopGame(success) {
   alert(`${aiPlaying ? 'AI' : 'You'} ${success ? 'won' : 'lost'}! Score: ${parseInt(document.getElementById('curscore').textContent)}, time: ${document.getElementById('curtime').textContent}`);
   // Clear queue
   queue.innerHTML = '';
+  rest_reqs.parentElement.style.visibility = 'hidden';
+  till_full.parentElement.style.visibility = 'hidden';
   // Reset score
   document.getElementById('curscore').textContent = '0';
   document.getElementById('curtime').textContent = '00:00';
@@ -301,6 +309,8 @@ function renderQueue() {
     }
     queue.appendChild(query);
   }
+  rest_reqs.innerText = pendingQueue.length + curq.length;
+  till_full.innerText = queueCap - curq.length;
 }
 
 // Things to do on each tick
