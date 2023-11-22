@@ -3,8 +3,7 @@
 You are now a disk. So many IO requests are incoming! Can you handle them efficiently?
 
 ## Play
-https://jamesjaw.github.io/maddisk.github.io/
-
+https://jamesjaw.github.io/maddisk/
 ## Development
 To run the project, clone the repository, cd into it, and
 ```bash
