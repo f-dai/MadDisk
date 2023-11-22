@@ -71,6 +71,10 @@ const queryInterval = 2000;  // miliseconds between each query
 let curReading = -1;
 let startReadingDeg = null;
 let headCanMove = true;
+// Record user results to compare performance with AI
+// WARNNING: they are all strings currently so do the conversion before comparing!!
+let userScore = 0;
+let userTime = 0;
 
 replayAlg.addEventListener('click', () => {
   let id = parseInt(replayAlg.dataset.id) || 0;
@@ -122,6 +126,7 @@ function startGame(isAI) {
     // Generate queries for human games
     pendingQueue = generateQueries(queries);
     lastQueue = pendingQueue.slice();
+    userScore = userTime = 0;
   }
   rest_reqs.parentElement.style.visibility = 'visible';
   till_full.parentElement.style.visibility = 'visible';
@@ -144,8 +149,16 @@ function stopGame(success) {
   document.getElementById('status-text').textContent = '> Boot';
   // Stop rotating
   clearInterval(intervalID);
+  if (!aiPlaying) {
+    // Record user score and time
+    userScore = document.getElementById('curscore').textContent;
+    userTime = document.getElementById('curtime').textContent;
+  }
   // Show results
-  alert(`${aiPlaying ? 'AI' : 'You'} ${success ? 'won' : 'lost'}! Score: ${parseInt(document.getElementById('curscore').textContent)}, time: ${document.getElementById('curtime').textContent}`);
+  let alert_str = `${aiPlaying ? 'AI' : 'You'} ${success ? 'won' : 'lost'}! Score: ${parseInt(document.getElementById('curscore').textContent)}, time: ${document.getElementById('curtime').textContent}`;
+  if (aiPlaying)
+    alert_str += `\nHuman score: ${userScore}, time: ${userTime}`;
+  alert(alert_str);
   // Clear queue
   queue.innerHTML = '';
   rest_reqs.parentElement.style.visibility = 'hidden';
